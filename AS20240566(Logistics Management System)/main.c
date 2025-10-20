@@ -6,7 +6,7 @@
 
 void cityManage(char city[MAX_CITIES][50],int *count);
 void distanceManage(float distance[MAX_CITIES][MAX_CITIES],char city[MAX_CITIES][50],int count);
-void vehicleManage();
+void vehicleManage(int capacity[3],float ratePerKm[3],float avgSpeed[3],float fuelEff[3],char type[3][20]);
 void deliveryRequest();
 void calcCTF();
 void deliveryRecords();
@@ -20,6 +20,12 @@ int main()
     int count=0;
     char city[MAX_CITIES][50];
     float distance[MAX_CITIES][MAX_CITIES] = {0};
+    char type[3][20] = {"Van", "Truck", "Lorry"};
+    int capacity[3];
+    float ratePerKm[3];
+    float avgSpeed[3];
+    float fuelEff[3];
+
     printf("\n===============================\n\n");
     printf("  logistics management system\n");
     do
@@ -46,7 +52,7 @@ int main()
             distanceManage(distance,city,count);
             break;
         case 3:
-            vehicleManage();
+            vehicleManage(capacity,ratePerKm,avgSpeed,fuelEff,type);
             break;
         case 4:
             deliveryRequest();
@@ -292,12 +298,24 @@ void distanceManage(float distance[MAX_CITIES][MAX_CITIES],char city[MAX_CITIES]
 
 
 }
-void vehicleManage()
+void vehicleManage(int capacity[3],float ratePerKm[3],float avgSpeed[3],float fuelEff[3],char type[3][20])
 {
-
+    capacity[0] = 1000; ratePerKm[0] = 30; avgSpeed[0] = 60; fuelEff[0] = 12;
+    capacity[1] = 5000; ratePerKm[1] = 40; avgSpeed[1] = 50; fuelEff[1] = 6;
+    capacity[2] = 10000; ratePerKm[2] = 80; avgSpeed[2] = 45; fuelEff[2] = 4;
+    printf("|-----------------------------------------------------------------------------------|\n");
+    printf("|   Type    |Capacity(kg) |Rate per km(LKR) |Avg Speed(km/h) |Fuel Efficiency(km/l) |\n");
+    printf("|-----------------------------------------------------------------------------------|\n");
+    printf("|   %s     |    %d     |      %.2f      |     %.2f      |       %.2f          |\n",type[0],capacity[0],ratePerKm[0],avgSpeed[0],fuelEff[0]);
+    printf("|-----------------------------------------------------------------------------------|\n");
+    printf("|   %s   |    %d     |      %.2f      |     %.2f      |       %.2f           |\n",type[1],capacity[1],ratePerKm[1],avgSpeed[1],fuelEff[1]);
+    printf("|-----------------------------------------------------------------------------------|\n");
+    printf("|   %s   |    %d    |      %.2f      |     %.2f      |       %.2f           |\n",type[2],capacity[2],ratePerKm[2],avgSpeed[2],fuelEff[2]);
+    printf("|-----------------------------------------------------------------------------------|\n");
 }
 void deliveryRequest()
 {
+
 
 }
 void calcCTF()
