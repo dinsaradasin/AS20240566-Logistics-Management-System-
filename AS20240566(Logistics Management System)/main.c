@@ -10,7 +10,7 @@ void cityManage(char city[MAX_CITIES][50],int *count);
 void distanceManage(float distance[MAX_CITIES][MAX_CITIES],char city[MAX_CITIES][50],int count);
 void vehicleManage(int capacity[3],float ratePerKm[3],float avgSpeed[3],float fuelEff[3],char type[3][20]);
 void deliveryRequest(char city[MAX_CITIES][50], int count, int capacity[3], char type[3][20],int deliverySrc[MAX_DEL],int deliveryDes[MAX_DEL],float deliveryWei[MAX_DEL],int deliveryVehicle[MAX_DEL],int *deliveryCount);
-void calcCTF(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], int count,int capacity[3], float ratePerKm[3], float avgSpeed[3], float fuelEff[3], char type[3][20],int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL], float deliveryWei[MAX_DEL],int deliveryVehicle[MAX_DEL], float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL], float profit[MAX_DEL], float customerCharge[MAX_DEL],int *deliveryCount);
+void calcCTF(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], int count,int capacity[3], float ratePerKm[3], float avgSpeed[3], float fuelEff[3], char type[3][20],int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL], float deliveryWei[MAX_DEL],int deliveryVehicle[MAX_DEL], float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL], float profit[MAX_DEL], float customerCharge[MAX_DEL],int *deliveryCount,float totalCost[MAX_DEL]);
 void deliveryRecords();
 void leastDistance();
 void performanceReport();
@@ -38,6 +38,7 @@ int main()
     float fuelCost[MAX_DEL];
     float profit[MAX_DEL];
     float customerCharge[MAX_DEL];
+    float totalCost[MAX_DEL];
     int deliveryCount = 0;
 
     printf("\n===============================\n\n");
@@ -73,7 +74,7 @@ int main()
 
             break;
         case 5:
-            calcCTF(distance,city,count,capacity,ratePerKm,avgSpeed,fuelEff,type,deliverySrc,deliveryDes,deliveryWei,deliveryVehicle,deliveryCost,deliveryTime,fuelUsed,fuelCost,profit,customerCharge,&deliveryCount);
+            calcCTF(distance,city,count,capacity,ratePerKm,avgSpeed,fuelEff,type,deliverySrc,deliveryDes,deliveryWei,deliveryVehicle,deliveryCost,deliveryTime,fuelUsed,fuelCost,profit,customerCharge,&deliveryCount,totalCost);
 
             break;
         case 6:
@@ -332,6 +333,7 @@ void vehicleManage(int capacity[3],float ratePerKm[3],float avgSpeed[3],float fu
 void deliveryRequest(char city[MAX_CITIES][50], int count, int capacity[3], char type[3][20],int deliverySrc[MAX_DEL],int deliveryDes[MAX_DEL],float deliveryWei[MAX_DEL],int deliveryVehicle[MAX_DEL],int *deliveryCount)
 {
     int option=0;
+    printf("\nCities\n");
      for (int i = 0; i < count; i++)
         {
             printf("%d. %s\n", i + 1, city[i]);
@@ -387,11 +389,55 @@ void deliveryRequest(char city[MAX_CITIES][50], int count, int capacity[3], char
     }while(option!=1);
 }
 
-void calcCTF(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], int count,int capacity[3], float ratePerKm[3], float avgSpeed[3], float fuelEff[3], char type[3][20],int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL], float deliveryWei[MAX_DEL],int deliveryVehicle[MAX_DEL], float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL], float profit[MAX_DEL], float customerCharge[MAX_DEL],int *deliveryCount)
+void calcCTF(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], int count,int capacity[3], float ratePerKm[3], float avgSpeed[3], float fuelEff[3], char type[3][20],int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL], float deliveryWei[MAX_DEL],int deliveryVehicle[MAX_DEL], float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL], float profit[MAX_DEL], float customerCharge[MAX_DEL],int *deliveryCount,float totalCost[MAX_DEL])
 {
-    int source, destination, vehicleType;
-    float weight;
-    //deliveryRequest();
+    if(*deliveryCount == 0)
+    {
+        printf("No deliveries to calculate.\n");
+        return;
+    }
+     for(int i = 0; i < *deliveryCount; i++)
+     {
+        int src = deliverySrc[i] - 1;
+        int des = deliveryDes[i] - 1;
+        int vType = deliveryVehicle[i] - 1;
+        float weight = deliveryWei[i];
+        float dist = distance[src][des];
+
+        //a.Delivery Cost
+        deliveryCost[i] = dist * ratePerKm[vType] * (1 + weight / 10000);
+
+        //b.Delivery Time hours
+        deliveryTime[i] = dist / avgSpeed[vType];
+
+        //c.Fuel Consumption
+        fuelUsed[i] = dist / fuelEff[vType];
+
+        //d.Fuel Cost
+        fuelCost[i] = fuelUsed[i] * FUEL_PRICE;
+
+        //e,Total Operational Cost
+        totalCost[i]= deliveryCost[i] + fuelCost[i];
+
+        //f.Profit
+        profit[i] = deliveryCost[i] * 0.25;
+
+        //h.Final Charge to Customer
+        customerCharge[i] = totalCost[i] + profit[i];
+        //print
+       /* printf("\nDelivery %d:\n", i + 1);
+        printf("From: %s\n", city[src]);
+        printf("To: %s\n", city[des]);
+        printf("Vehicle: %s\n", type[vType]);
+        printf("Distance: %.2f km\n", dist);
+        printf("Weight: %.2f kg\n", weight);
+        printf("Delivery Cost: Rs.%.2f \n", deliveryCost[i]);
+        printf("Delivery Time: %.2f hours\n", deliveryTime[i]);
+        printf("Fuel Used: %.2f liters\n", fuelUsed[i]);
+        printf("Fuel Cost: Rs.%.2f \n", fuelCost[i]);
+        printf("Profit: Rs.%.2f \n", profit[i]);
+        printf("Customer Charge: Rs.%.2f \n", customerCharge[i]);*/
+     }
 }
 void deliveryRecords()
 {
