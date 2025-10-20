@@ -5,7 +5,7 @@
 #define MAX_CITIES 30
 
 void cityManage(char city[MAX_CITIES][50],int *count);
-void distanceManage();
+void distanceManage(float distance[MAX_CITIES][MAX_CITIES],char city[MAX_CITIES][50],int count);
 void vehicleManage();
 void deliveryRequest();
 void calcCTF();
@@ -19,8 +19,12 @@ int main()
     int choice;
     int count=0;
     char city[MAX_CITIES][50];
+    float distance[MAX_CITIES][MAX_CITIES] = {0};
+    printf("\n===============================\n\n");
+    printf("  logistics management system\n");
     do
     {
+        printf("\n===============================\n");
         printf("1.City Management\n");
         printf("2.Distance Management between Cities\n");
         printf("3.Vehicle Management\n");
@@ -39,7 +43,7 @@ int main()
             cityManage(city,&count);
             break;
         case 2:
-            distanceManage();
+            distanceManage(distance,city,count);
             break;
         case 3:
             vehicleManage();
@@ -155,8 +159,80 @@ void cityManage(char city[MAX_CITIES][50],int *count)
     }
 
 }
-void distanceManage()
+void distanceManage(float distance[MAX_CITIES][MAX_CITIES],char city[MAX_CITIES][50],int count)
 {
+    int option,found1=0,found2=0;
+    int tempCity1=0,tempCity2=0;
+    char temp[2][50];
+    printf("1.Enter the Distance between cities\n");
+    printf("2.Update the distance between cities\n");
+    printf("Enter the option:");
+    scanf("%d",&option);
+    if(option==1)
+    {
+        for(int i=0;i<count;i++)
+        {
+            for(int j=i+1;j<count;j++)
+            {
+                 if(distance[i][j]!=0)
+                 {
+                     continue;
+                 }
+             printf("Enter the Distance between city %s and %s:",city[i],city[j]);
+             scanf("%f",&distance[i][j]);
+             distance[j][i]=distance[i][j];
+            }
+        distance[i][i]=0;
+        }
+    }
+    else if(option==2)
+    {
+        getchar();
+        printf("Enter the name city 1 :");
+        fgets(temp[0],sizeof(temp[0]),stdin);
+        temp[0][strcspn(temp[0], "\n")] = '\0';
+        printf("Enter the name city 2 :");
+        fgets(temp[1],sizeof(temp[1]),stdin);
+        temp[1][strcspn(temp[1], "\n")] = '\0';
+
+        for(int a=0;a<count;a++)
+        {
+            if(strcmp(city[a], temp[0]) == 0)
+            {
+                found1=1;
+                tempCity1=a;
+            }
+            if(strcmp(city[a], temp[1]) == 0)
+            {
+                found2=1;
+                tempCity2=a;
+            }
+        }
+        if(found1==1 && found2==1)
+        {
+            printf("Enter the distance between cities %s and %s:",temp[0],temp[1]);
+            scanf("%f",&distance[tempCity1][tempCity2]);
+            distance[tempCity2][tempCity1]=distance[tempCity1][tempCity2];
+        }
+        else if(found1==1 && found2==0)
+        {
+            printf("City name %s is incorrect:\n",temp[0]);
+        }
+        else if(found1==0 && found2==1)
+        {
+            printf("City name %s is incorrect:\n",temp[1]);
+        }
+        else
+        {
+            printf("Invalid City names\n");
+        }
+    }
+    else
+    {
+        printf("Invalid Option\n");
+
+    }
+
 
 }
 void vehicleManage()
