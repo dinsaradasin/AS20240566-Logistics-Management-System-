@@ -7,7 +7,7 @@
 void cityManage(char city[MAX_CITIES][50],int *count);
 void distanceManage(float distance[MAX_CITIES][MAX_CITIES],char city[MAX_CITIES][50],int count);
 void vehicleManage(int capacity[3],float ratePerKm[3],float avgSpeed[3],float fuelEff[3],char type[3][20]);
-void deliveryRequest();
+void deliveryRequest(char city[MAX_CITIES][50], int count, float capacity[3], char type[3][20]);
 void calcCTF();
 void deliveryRecords();
 void leastDistance();
@@ -55,7 +55,7 @@ int main()
             vehicleManage(capacity,ratePerKm,avgSpeed,fuelEff,type);
             break;
         case 4:
-            deliveryRequest();
+            deliveryRequest(city, count, capacity, type)
             break;
         case 5:
             calcCTF();
@@ -313,10 +313,62 @@ void vehicleManage(int capacity[3],float ratePerKm[3],float avgSpeed[3],float fu
     printf("|   %s   |    %d    |      %.2f      |     %.2f      |       %.2f           |\n",type[2],capacity[2],ratePerKm[2],avgSpeed[2],fuelEff[2]);
     printf("|-----------------------------------------------------------------------------------|\n");
 }
-void deliveryRequest()
+void deliveryRequest(char city[MAX_CITIES][50], int count, float capacity[3], char type[3][20])
 {
+    int source, destination, vehicleType,option=0;
+    float weight;
+     for (int i = 0; i < count; i++)
+        {
+            printf("%d. %s\n", i + 1, city[i]);
+        }
+    do
+    {
+        printf("Enter the source city index:");
+        scanf("%d",&source);
+        printf("Enter the destination city index:");
+        scanf("%d",&destination);
+        printf("Enter the weight of the cargo:");
+        scanf("%f",&weight);
+        printf("\n1.Van\n2.Truck\n3.Lorry\n\n");
+        printf("Enter the vehicle Type:");
+        scanf("%d",&vehicleType);
+        if(source==destination)
+        {
+            printf("Enter two different cities\n\n");
 
+        }
+        else if (vehicleType == 1 && (weight > 1000 || weight <= 0))
+        {
+                printf("Weight capacity of the van is 1000kg\n\n");
 
+        }
+        else if (vehicleType == 2 && (weight > 5000 || weight <= 0))
+        {
+                printf("Weight capacity of the truck is 5000kg\n\n");
+
+        }
+        else if (vehicleType == 3 && (weight > 10000 || weight <= 0))
+        {
+
+                printf("Weight capacity of the lorry is 10000kg\n\n");
+
+        }
+        else if(vehicleType>3 || vehicleType<1)
+        {
+            printf("Invalid vehicle Type\n\n");
+        }
+        else
+        {
+            printf("\nDelivery Request Accepted!\n");
+            printf("From: %s\n", city[source - 1]);
+            printf("To: %s\n", city[destination - 1]);
+            printf("Weight: %.2f kg\n", weight);
+            printf("Vehicle: %s\n\n", type[vehicleType - 1]);
+            break;
+        }
+        printf("To exit the loop enter 1");
+        scanf("%d",&option);
+    }while(option!=1);
 }
 void calcCTF()
 {
