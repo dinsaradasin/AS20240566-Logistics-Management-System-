@@ -12,7 +12,7 @@ void vehicleManage(int capacity[3],float ratePerKm[3],float avgSpeed[3],float fu
 void deliveryRequest(char city[MAX_CITIES][50], int count, int capacity[3], char type[3][20],int deliverySrc[MAX_DEL],int deliveryDes[MAX_DEL],float deliveryWei[MAX_DEL],int deliveryVehicle[MAX_DEL],int *deliveryCount);
 void calcCTF(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], int count,int capacity[3], float ratePerKm[3], float avgSpeed[3], float fuelEff[3], char type[3][20],int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL], float deliveryWei[MAX_DEL],int deliveryVehicle[MAX_DEL], float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL], float profit[MAX_DEL], float customerCharge[MAX_DEL],int *deliveryCount,float totalCost[MAX_DEL]);
 void deliveryRecords(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], int count,int capacity[3], float ratePerKm[3], float avgSpeed[3], float fuelEff[3], char type[3][20],int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL], float deliveryWei[MAX_DEL],int deliveryVehicle[MAX_DEL], float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL], float profit[MAX_DEL], float customerCharge[MAX_DEL],int deliveryCount,float totalCost[MAX_DEL]);
-void leastDistance();
+void leastDistance(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], int count);
 void performanceReport();
 void fileHandle();
 
@@ -81,7 +81,7 @@ int main()
             deliveryRecords(distance,city,count,capacity,ratePerKm,avgSpeed,fuelEff,type,deliverySrc,deliveryDes,deliveryWei,deliveryVehicle,deliveryCost,deliveryTime,fuelUsed,fuelCost,profit,customerCharge,deliveryCount,totalCost);
             break;
         case 7:
-            leastDistance();
+            leastDistance(distance,city,count);
             break;
         case 8:
             performanceReport();
@@ -433,7 +433,7 @@ void calcCTF(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], 
 }
 void deliveryRecords(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], int count,int capacity[3], float ratePerKm[3], float avgSpeed[3], float fuelEff[3], char type[3][20],int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL], float deliveryWei[MAX_DEL],int deliveryVehicle[MAX_DEL], float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL], float profit[MAX_DEL], float customerCharge[MAX_DEL],int deliveryCount,float totalCost[MAX_DEL])
 {
-    calcCTF(distance,city,count,capacity,ratePerKm,avgSpeed,fuelEff,type,deliverySrc,deliveryDes,deliveryWei,deliveryVehicle,deliveryCost,deliveryTime,fuelUsed,fuelCost,profit,customerCharge,deliveryCount,totalCost);
+    calcCTF(distance,city,count,capacity,ratePerKm,avgSpeed,fuelEff,type,deliverySrc,deliveryDes,deliveryWei,deliveryVehicle,deliveryCost,deliveryTime,fuelUsed,fuelCost,profit,customerCharge,&deliveryCount,totalCost);
     for(int i=0;i<deliveryCount;i++)
     {
             int src = deliverySrc[i] - 1;
@@ -457,9 +457,103 @@ void deliveryRecords(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIE
             printf("====================================================\n\n");
     }
 }
-void leastDistance()
+void leastDistance(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], int count)
 {
+    int srcCity,desCity;
+    printf("\nCities\n");
+     for (int i = 0; i < count; i++)
+        {
+            printf("%d. %s\n", i + 1, city[i]);
+        }
+         printf("Enter the source city index:");
+        scanf("%d",&srcCity);
+        printf("Enter the destination city index:");
+        scanf("%d",&desCity);
+        srcCity--;
+        desCity--;
+        if(srcCity==desCity)
+        {
+            printf("Enter 2 different cities");
+            return;
+        }
+        float minDis=distance[srcCity][desCity];
+        float tempDis=0,tempDis1[3]={0};
+        if(count==3)
+        {
+            for(int j=0;j<count;j++)
+            {
+                if(srcCity==j || desCity==j)
+                {
+                    continue;
+                }
+                tempDis=distance[srcCity][j]+distance[j][desCity];
+                if(minDis>tempDis)
+                {
+                    minDis=tempDis;
+                    printf("Minimum Distance is from %s to %s to %s is:%f",city[srcCity],city[j],city[desCity],minDis);
+                }
+                else
+                {
+                    printf("Minimum Distance is from %s to %s:%f",city[srcCity],city[desCity],minDis);
+                }
+            }
+            return;
+        }
+        int tempCount=0;
+        int tempCity[2];
+        if(count==4)
+        {
+            for(int j=0;j<count;j++)
+            {
+                if(srcCity==j || desCity==j)
+                {
+                    continue;
+                }
+                tempDis1[tempCount]=distance[srcCity][j]+distance[j][desCity];
+                tempCity[0]=j;
+                tempCount++;
 
+                for(int i=j+1;i<count;i++)
+                {
+                    if(srcCity==i || desCity==i)
+                    {
+                        continue;
+                    }
+                    tempDis1[tempCount]=distance[srcCity][i]+distance[i][desCity];
+                    tempCity[1]=i;
+                    tempCount++;
+                    tempDis1[tempCount]=distance[srcCity][i]+distance[i][j]+distance[j][desCity];
+                    break;
+                }
+                break;
+            }
+            int tempCount1=-1;
+            minDis=tempDis1[0];
+            for(int i=0;i<3;i++)
+            {
+                if(minDis>tempDis1[i])
+                {
+                    minDis=tempDis1[i];
+                    tempCount1=i;
+                }
+            }
+            if(tempCount==-1)
+            {
+                printf("Minimum Distance is from %s to %s:%f",city[srcCity],city[desCity],minDis);
+            }
+            if(tempCount==0)
+            {
+                printf("Minimum Distance is from %s to %s to %s:%f",city[srcCity],city[tempCity[0]],city[desCity],minDis);
+            }
+            if(tempCount==1)
+            {
+                printf("Minimum Distance is from %s to %s to %s:%f",city[srcCity],city[tempCity[1]],city[desCity],minDis);
+            }
+            if(tempCount==2)
+            {
+                printf("Minimum Distance is from %s to %s to %s to %s:%f",city[srcCity],city[tempCity[0]],city[tempCity[1]],city[desCity],minDis);
+            }
+        }
 }
 void performanceReport()
 {
