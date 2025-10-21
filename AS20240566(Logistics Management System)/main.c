@@ -460,12 +460,17 @@ void deliveryRecords(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIE
 void leastDistance(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50], int count)
 {
     int srcCity,desCity;
+    if(count<2 || count>4)
+    {
+       printf("Error: This function only supports 2 to 4 cities.\n");
+        return;
+    }
     printf("\nCities\n");
      for (int i = 0; i < count; i++)
         {
             printf("%d. %s\n", i + 1, city[i]);
         }
-         printf("Enter the source city index:");
+        printf("Enter the source city index:");
         scanf("%d",&srcCity);
         printf("Enter the destination city index:");
         scanf("%d",&desCity);
@@ -476,8 +481,10 @@ void leastDistance(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES]
             printf("Enter 2 different cities");
             return;
         }
+
         float minDis=distance[srcCity][desCity];
-        float tempDis=0,tempDis1[3]={0};
+        int temp1=-1,temp2=-1;
+
         if(count==3)
         {
             for(int j=0;j<count;j++)
@@ -486,72 +493,74 @@ void leastDistance(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES]
                 {
                     continue;
                 }
-                tempDis=distance[srcCity][j]+distance[j][desCity];
-                if(minDis>tempDis)
+                float d=distance[srcCity][j]+distance[j][desCity];
+                if(minDis>d)
                 {
-                    minDis=tempDis;
-                    printf("Minimum Distance is from %s to %s to %s is:%f",city[srcCity],city[j],city[desCity],minDis);
-                }
-                else
-                {
-                    printf("Minimum Distance is from %s to %s:%f",city[srcCity],city[desCity],minDis);
+                    minDis=d;
+                    temp1=j;
                 }
             }
-            return;
+            if(temp1 != -1)
+            {
+                printf("Minimum Distance is from %s to %s to %s: %.2f\n", city[srcCity], city[temp1], city[desCity], minDis);
+            }
+            else
+            {
+                printf("Minimum Distance is from %s to %s: %.2f\n", city[srcCity], city[desCity], minDis);
+            }
+
         }
-        int tempCount=0;
-        int tempCity[2];
         if(count==4)
         {
-            for(int j=0;j<count;j++)
+            for(int i=0;i<count;i++)
             {
-                if(srcCity==j || desCity==j)
+                if(srcCity==i || desCity==i)
                 {
                     continue;
                 }
-                tempDis1[tempCount]=distance[srcCity][j]+distance[j][desCity];
-                tempCity[0]=j;
-                tempCount++;
+                float d=distance[srcCity][i]+distance[i][desCity];
+                if(d<minDis)
+                {
+                    minDis=d;
+                    temp1=i;
+                    temp2=-1;
 
-                for(int i=j+1;i<count;i++)
+                }
+            }
+
+            for(int i=0;i<count;i++)
+            {
+                if(srcCity==i || desCity==i)
                 {
-                    if(srcCity==i || desCity==i)
+                    continue;
+                }
+                for(int j=0;j<count;j++)
+                {
+                    if(j==srcCity || j==desCity || j==i)
                     {
-                        continue;
+                      continue;
                     }
-                    tempDis1[tempCount]=distance[srcCity][i]+distance[i][desCity];
-                    tempCity[1]=i;
-                    tempCount++;
-                    tempDis1[tempCount]=distance[srcCity][i]+distance[i][j]+distance[j][desCity];
-                    break;
-                }
-                break;
-            }
-            int tempCount1=-1;
-            minDis=tempDis1[0];
-            for(int i=0;i<3;i++)
-            {
-                if(minDis>tempDis1[i])
-                {
-                    minDis=tempDis1[i];
-                    tempCount1=i;
+                    float d=distance[srcCity][i]+ distance[i][j]+distance[j][desCity];
+                    if(d<minDis)
+                    {
+                        minDis=d;
+                        temp1=i;
+                        temp2=j;
+                    }
                 }
             }
-            if(tempCount==-1)
+
+            if(temp1 == -1 && temp2 == -1)
             {
-                printf("Minimum Distance is from %s to %s:%f",city[srcCity],city[desCity],minDis);
+                printf("Minimum Distance is from %s to %s:%.2f\n",city[srcCity],city[desCity],minDis);
             }
-            if(tempCount==0)
+            else if(temp2==-1)
             {
-                printf("Minimum Distance is from %s to %s to %s:%f",city[srcCity],city[tempCity[0]],city[desCity],minDis);
+                printf("Minimum Distance is from %s to %s to %s:%.2f\n",city[srcCity],city[temp1],city[desCity],minDis);
             }
-            if(tempCount==1)
+            else
             {
-                printf("Minimum Distance is from %s to %s to %s:%f",city[srcCity],city[tempCity[1]],city[desCity],minDis);
-            }
-            if(tempCount==2)
-            {
-                printf("Minimum Distance is from %s to %s to %s to %s:%f",city[srcCity],city[tempCity[0]],city[tempCity[1]],city[desCity],minDis);
+                printf("Minimum Distance is from %s to %s to %s to %s:%.2f\n",city[srcCity],city[temp1],city[temp2],city[desCity],minDis);
             }
         }
 }
