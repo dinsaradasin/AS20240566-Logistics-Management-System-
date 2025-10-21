@@ -660,7 +660,7 @@ void performanceReport(int deliveryCount, int deliverySrc[MAX_DEL], int delivery
     }
 
     float totalDistance = 0, totalTime = 0, totalRevenue = 0, totalProfit = 0;
-    float longestRoute = -1, shortestRoute = 9999;
+    float longRoute = -1, shortRoute = 9999;
     int longSrc=-1, longDes=-1, shortSrc=-1, shortDes=-1;
 
     for(int i=0; i<deliveryCount; i++)
@@ -674,15 +674,15 @@ void performanceReport(int deliveryCount, int deliverySrc[MAX_DEL], int delivery
         totalRevenue += customerCharge[i];
         totalProfit += profit[i];
 
-        if(dist > longestRoute)
+        if(dist > longRoute)
         {
-            longestRoute = dist;
+            longRoute = dist;
             longSrc = src;
             longDes = des;
         }
-        if(dist < shortestRoute)
+        if(dist < shortRoute)
         {
-            shortestRoute = dist;
+            shortRoute = dist;
             shortSrc = src;
             shortDes = des;
         }
@@ -690,12 +690,12 @@ void performanceReport(int deliveryCount, int deliverySrc[MAX_DEL], int delivery
 
     printf("\n==================== PERFORMANCE REPORT ====================\n");
     printf("Total Deliveries Completed : %d\n", deliveryCount);
-    printf("Total Distance Covered      : %.2f km\n", totalDistance);
+    printf("Total Distance Covered     : %.2f km\n", totalDistance);
     printf("Average Delivery Time      : %.2f hours\n", totalTime/deliveryCount);
     printf("Total Revenue              : %.2f LKR\n", totalRevenue);
     printf("Total Profit               : %.2f LKR\n", totalProfit);
-    printf("Longest Route Completed    : %s to %s (%.2f km)\n", city[longSrc], city[longDes], longestRoute);
-    printf("Shortest Route Completed   : %s to %s (%.2f km)\n", city[shortSrc], city[shortDes], shortestRoute);
+    printf("Longest Route Completed    : %s to %s (%.2f km)\n", city[longSrc], city[longDes], longRoute);
+    printf("Shortest Route Completed   : %s to %s (%.2f km)\n", city[shortSrc], city[shortDes], shortRoute);
     printf("=============================================================\n\n");
 }
 
@@ -755,9 +755,7 @@ void saveDeliveries(int deliveryCount, int deliverySrc[MAX_DEL], int deliveryDes
     fprintf(fp, "%d\n", deliveryCount);
     for(int i=0; i<deliveryCount; i++)
     {
-        fprintf(fp, "%d %d %.2f %d %.2f %.2f %.2f %.2f %.2f %.2f\n",
-                deliverySrc[i], deliveryDes[i], deliveryWei[i], deliveryVehicle[i],
-                deliveryCost[i], deliveryTime[i], fuelUsed[i], fuelCost[i], profit[i], customerCharge[i]);
+        fprintf(fp, "%d %d %.2f %d %.2f %.2f %.2f %.2f %.2f %.2f\n",deliverySrc[i], deliveryDes[i], deliveryWei[i], deliveryVehicle[i],deliveryCost[i], deliveryTime[i], fuelUsed[i], fuelCost[i], profit[i], customerCharge[i]);
     }
     fclose(fp);
 }
@@ -775,10 +773,7 @@ void loadDeliveries(int *deliveryCount, int deliverySrc[MAX_DEL], int deliveryDe
     fscanf(fp, "%d\n", deliveryCount);
     for(int i=0; i<*deliveryCount; i++)
     {
-        fscanf(fp, "%d %d %f %d %f %f %f %f %f %f\n",
-               &deliverySrc[i], &deliveryDes[i], &deliveryWei[i], &deliveryVehicle[i],
-               &deliveryCost[i], &deliveryTime[i], &fuelUsed[i], &fuelCost[i],
-               &profit[i], &customerCharge[i]);
+        fscanf(fp, "%d %d %f %d %f %f %f %f %f %f\n",&deliverySrc[i], &deliveryDes[i], &deliveryWei[i], &deliveryVehicle[i],&deliveryCost[i], &deliveryTime[i], &fuelUsed[i], &fuelCost[i],&profit[i], &customerCharge[i]);
     }
     fclose(fp);
 }
