@@ -25,8 +25,18 @@ void leastDistance(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES]
 void performanceReport(int deliveryCount, int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL],
                        float deliveryTime[MAX_DEL], float customerCharge[MAX_DEL], float profit[MAX_DEL],
                        float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIES][50]);
-void fileHandle();
-
+void saveRoutes(char city[MAX_CITIES][50], float distance[MAX_CITIES][MAX_CITIES], int count);
+void loadRoutes(char city[MAX_CITIES][50], float distance[MAX_CITIES][MAX_CITIES], int *count);
+void saveDeliveries(int deliveryCount, int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL],
+                    float deliveryWei[MAX_DEL], int deliveryVehicle[MAX_DEL],
+                    float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],
+                    float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL],
+                    float profit[MAX_DEL], float customerCharge[MAX_DEL]);
+void loadDeliveries(int *deliveryCount, int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL],
+                    float deliveryWei[MAX_DEL], int deliveryVehicle[MAX_DEL],
+                    float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],
+                    float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL],
+                    float profit[MAX_DEL], float customerCharge[MAX_DEL]);
 int main()
 {
     int choice;
@@ -53,6 +63,12 @@ int main()
     int deliveryCount = 0,srcCity,desCity;
     int indicator=0;
 
+    loadRoutes(city, distance, &count);
+    loadDeliveries(&deliveryCount, deliverySrc, deliveryDes, deliveryWei, deliveryVehicle,
+               deliveryCost, deliveryTime, fuelUsed, fuelCost, profit, customerCharge);
+    printf("Data Loaded Successfully!\n");
+
+
     printf("\n===============================\n\n");
     printf("  logistics management system\n");
     do
@@ -66,8 +82,7 @@ int main()
         printf("6.Delivery Records\n");
         printf("7.Least Cost Route\n");
         printf("8.Report\n");
-        printf("9.File Management\n");
-        printf("10.Exit\n\n");
+        printf("9.Exit\n\n");
         printf("Enter the choice:");
         scanf("%d",&choice);
         switch(choice)
@@ -109,14 +124,16 @@ int main()
             performanceReport(deliveryCount,deliverySrc,deliveryDes,deliveryTime,customerCharge,profit,distance,city);
             break;
         case 9:
-            fileHandle();
-            break;
-        case 10:
             break;
         default:
             printf("Invalid option\n");
         }
-    }while(choice!=10);
+    }while(choice!=9);
+
+    saveRoutes(city, distance, count);
+    saveDeliveries(deliveryCount, deliverySrc, deliveryDes, deliveryWei, deliveryVehicle,
+               deliveryCost, deliveryTime, fuelUsed, fuelCost, profit, customerCharge);
+    printf("Data Saved Successfully!\n");
 
     return 0;
 }
@@ -523,7 +540,7 @@ void deliveryRecords(float distance[MAX_CITIES][MAX_CITIES], char city[MAX_CITIE
         printf("Weight: %.2f kg\n", weight);
         printf("------------------------------------------------------\n");
         printf("Base Cost: %.2f x %.2f(1+%.2f/10000)=%.2f LKR\n", dist,ratePerKm[vType],weight,deliveryCost[i]);
-        printf("Fuel Used: %.2f LKR\n", fuelUsed[i]);
+        printf("Fuel Used: %.2f liters\n", fuelUsed[i]);
         printf("Fuel Cost: %.2f LKR\n", fuelCost[i]);
         printf("Operational Cost: %.2f LKR\n", totalCost[i]);
         printf("Profit: %.2f LKR\n", profit[i]);
@@ -643,7 +660,7 @@ void performanceReport(int deliveryCount, int deliverySrc[MAX_DEL], int delivery
     }
 
     float totalDistance = 0, totalTime = 0, totalRevenue = 0, totalProfit = 0;
-    float longestRoute = -1, shortestRoute = -1;
+    float longestRoute = -1, shortestRoute = 9999;
     int longSrc=-1, longDes=-1, shortSrc=-1, shortDes=-1;
 
     for(int i=0; i<deliveryCount; i++)
@@ -682,7 +699,86 @@ void performanceReport(int deliveryCount, int deliverySrc[MAX_DEL], int delivery
     printf("=============================================================\n\n");
 }
 
-void fileHandle()
+void saveRoutes(char city[MAX_CITIES][50], float distance[MAX_CITIES][MAX_CITIES], int count)
 {
+    FILE *fp = fopen("routes.txt", "w");
+    if(!fp)
+    {
+        return;
+    }
+    fprintf(fp, "%d\n", count);
+    for(int i=0; i<count; i++)
+    {
+        fprintf(fp, "%s\n", city[i]);
+    }
+    for(int i=0; i<count; i++)
+    {
+        for(int j=0; j<count; j++)
+        {
+            fprintf(fp, "%.2f\n", distance[i][j]);
+        }
+    }
+    fclose(fp);
+}
 
+void loadRoutes(char city[MAX_CITIES][50], float distance[MAX_CITIES][MAX_CITIES], int *count)
+{
+    FILE *fp = fopen("routes.txt", "r");
+    if(!fp)
+    {
+         return;
+    }
+    fscanf(fp, "%d\n", count);
+    for(int i=0; i<*count; i++)
+     {
+         fgets(city[i], 50, fp), city[i][strcspn(city[i], "\n")] = '\0';
+     }
+    for(int i=0; i<*count; i++)
+      {
+          for(int j=0; j<*count; j++)
+           {
+               fscanf(fp, "%f\n", &distance[i][j]);
+           }
+      }
+    fclose(fp);
+}
+void saveDeliveries(int deliveryCount, int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL],
+                    float deliveryWei[MAX_DEL], int deliveryVehicle[MAX_DEL],
+                    float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],
+                    float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL],
+                    float profit[MAX_DEL], float customerCharge[MAX_DEL]) {
+    FILE *fp = fopen("deliveries.txt", "w");
+    if(!fp)
+    {
+        return;
+    }
+    fprintf(fp, "%d\n", deliveryCount);
+    for(int i=0; i<deliveryCount; i++)
+    {
+        fprintf(fp, "%d %d %.2f %d %.2f %.2f %.2f %.2f %.2f %.2f\n",
+                deliverySrc[i], deliveryDes[i], deliveryWei[i], deliveryVehicle[i],
+                deliveryCost[i], deliveryTime[i], fuelUsed[i], fuelCost[i], profit[i], customerCharge[i]);
+    }
+    fclose(fp);
+}
+
+void loadDeliveries(int *deliveryCount, int deliverySrc[MAX_DEL], int deliveryDes[MAX_DEL],
+                    float deliveryWei[MAX_DEL], int deliveryVehicle[MAX_DEL],
+                    float deliveryCost[MAX_DEL], float deliveryTime[MAX_DEL],
+                    float fuelUsed[MAX_DEL], float fuelCost[MAX_DEL],
+                    float profit[MAX_DEL], float customerCharge[MAX_DEL]) {
+    FILE *fp = fopen("deliveries.txt", "r");
+    if(!fp)
+        {
+             return;
+        }
+    fscanf(fp, "%d\n", deliveryCount);
+    for(int i=0; i<*deliveryCount; i++)
+    {
+        fscanf(fp, "%d %d %f %d %f %f %f %f %f %f\n",
+               &deliverySrc[i], &deliveryDes[i], &deliveryWei[i], &deliveryVehicle[i],
+               &deliveryCost[i], &deliveryTime[i], &fuelUsed[i], &fuelCost[i],
+               &profit[i], &customerCharge[i]);
+    }
+    fclose(fp);
 }
